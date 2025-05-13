@@ -1,0 +1,27 @@
+아니요, index.ts와 test1.ts에서 각각 import { AppDataSource } from "./data-source1"; 또는 import { AppDataSource } from "../../data-source1";를 사용하더라도, 
+실제로는 하나의 동일한 AppDataSource 인스턴스를 공유하게 됩니다.
+
+📦 모듈 캐싱과 싱글톤(Singleton) 개념
+Node.js에서는 모듈을 import하거나 require하면 해당 모듈이 한 번만 로드되고 캐시됩니다. 따라서 동일한 경로의 모듈을 여러 파일에서 import하더라도, 실제로는 같은 인스턴스를 참조하게 됩니다.
+
+TypeORM의 DataSource 객체도 마찬가지로, data-source1.ts에서 AppDataSource를 export한 후 다른 파일에서 import하면, 모두 동일한 AppDataSource 인스턴스를 공유하게 됩니다.
+
+⚙️ initialize() 메서드의 동작 방식
+AppDataSource.initialize() 메서드는 데이터베이스 연결을 초기화하는 역할을 합니다. 이 메서드는 비동기적으로 동작하며, 이미 초기화된 경우에는 추가적인 연결을 생성하지 않습니다.
+
+따라서 index.ts에서 AppDataSource.initialize()를 호출하여 데이터베이스 연결을 초기화한 후, test1.ts에서 동일한 AppDataSource를 사용하더라도, 새로운 연결이 생성되지 않고 기존의 연결이 재사용됩니다.
+
+✅ 요약
+data-source1.ts에서 export한 AppDataSource는 싱글톤(Singleton) 인스턴스로, 여러 파일에서 import하더라도 동일한 인스턴스를 참조합니다.
+
+AppDataSource.initialize()는 한 번만 호출되어야 하며, 이후에는 이미 초기화된 연결이 재사용됩니다.
+
+따라서 index.ts와 test1.ts에서 각각 AppDataSource를 import하더라도, 하나의 데이터베이스 연결만 생성되며, 이를 공유하게 됩니다.
+
+🔒 주의사항
+만약 data-source1.ts를 서로 다른 경로로 import하여 Node.js가 이를 서로 다른 모듈로 인식하게 되면, 각각의 AppDataSource 인스턴스가 생성될 수 있습니다. 
+이를 방지하기 위해서는 모듈의 경로를 일관되게 유지하는 것이 중요합니다.
+
+또한, 애플리케이션의 초기화 시점에 AppDataSource.initialize()를 호출하여 데이터베이스 연결을 설정하고, 이후에는 해당 연결을 재사용하는 구조를 갖추는 것이 좋습니다.
+
+이러한 구조를 통해 애플리케이션 전반에서 일관된 데이터베이스 연결을 유지할 수 있으며, 자원 효율성과 유지보수성을 향상시킬 수 있습니다.
