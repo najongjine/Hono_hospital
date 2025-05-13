@@ -4,6 +4,8 @@ import { TStores } from "../../entities/TStores";
 import axios from "axios";
 import { TMedicalSpecCode } from "../../entities/TMedicalSpecCode";
 import { THospital } from "../../entities/THospital";
+import { THospitalMedicalcodes } from "../../entities/THospitalMedicalcodes";
+import { Code } from "typeorm";
 
 /**
  * https://www.data.go.kr/data/15000736/openapi.do
@@ -76,13 +78,13 @@ test1.get("/hospitals", async (c) => {
   try {
     const serviceKey = "K60fwXwUfeie+c5RPS5jl2C3VL9WHVCpNlwzN87iA10pdJUZ3zxgCBWc+Rsaw9PAbY3plvzstYZbAwBdhTNXaQ==";
     const url = "http://apis.data.go.kr/B552657/HsptlAsembySearchService/getHsptlMdcncListInfoInqire";
-    const medicalCode = `D001`;
+    const medicalCode = `D026`;
 
     const params = {
       serviceKey: serviceKey,
       Q0: "광주광역시",
-      Q1: "광산구",
-      QZ: "B",
+      //Q1: "광산구",
+      //QZ: "B",
       QD: medicalCode, // 진료과목. CODE_MST의'D000' 참조(D001~D029)
       //QT: "1",
       //QN: "삼성병원",
@@ -94,7 +96,7 @@ test1.get("/hospitals", async (c) => {
     const response = await axios.get(url, {
       params,
     });
-    let data = response?.data?.response?.body?.items;
+    let data = response?.data;
     return c.json({ success: true, data: data, code: "", message: `` });
   } catch (error: any) {
     return c.json({ success: false, data: null, code: "test1", message: `!!! ${error?.message ?? "!!! test1"}` });
@@ -130,6 +132,10 @@ D034:구강악안면외과`;
     return c.json({ success: false, data: null, code: "test1", message: `!!! ${error?.message ?? "!!! test1"}` });
   }
 });
+
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
 
 test1.get("/insert_hospitals", async (c) => {
   type HospitalData = {
@@ -177,75 +183,126 @@ test1.get("/insert_hospitals", async (c) => {
     message: ``,
   };
   try {
-    let medicalCode = `D001`;
+    let medicalCode = `D004`;
     const medicalCodeRepository = AppDataSource.getRepository(TMedicalSpecCode);
     const hospitalRepository = AppDataSource.getRepository(THospital);
+    const hospitalMedicalcodeRepository = AppDataSource.getRepository(THospitalMedicalcodes);
 
-    const codeData = await medicalCodeRepository.findOne({ where: { code: medicalCode } });
-    if (!codeData?.id) {
-      result.success = false;
-      throw Error("!!! codeData doesn't exist");
-    }
-
-    const serviceKey = "K60fwXwUfeie+c5RPS5jl2C3VL9WHVCpNlwzN87iA10pdJUZ3zxgCBWc+Rsaw9PAbY3plvzstYZbAwBdhTNXaQ==";
-    const url = "http://apis.data.go.kr/B552657/HsptlAsembySearchService/getHsptlMdcncListInfoInqire";
-
-    const params = {
-      serviceKey: serviceKey,
-      Q0: "광주광역시",
-      Q1: "광산구",
-      QZ: "B",
-      QD: medicalCode, // 진료과목. CODE_MST의'D000' 참조(D001~D029)
-      //QT: "1",
-      //QN: "삼성병원",
-      //ORD: "NAME",
-      pageNo: "1",
-      numOfRows: "100000",
-    };
-
-    const response = await axios.get(url, {
-      params,
-    });
-
-    let data = response?.data?.response?.body?.items?.item ?? [];
-    for (const _e of data) {
-      if (!_e?.hpid) continue;
-
-      let e: HospitalData = _e;
-      console.log(`## e: ${e.hpid}`);
-      const existHospital = await hospitalRepository.findOne({ where: { hpid: e.hpid } });
-      console.log(existHospital?.id);
-      if (existHospital?.id) {
-        continue;
+    //const codeData = await medicalCodeRepository.findOne({ where: { code: medicalCode } });
+    const codedataList = await medicalCodeRepository.find();
+    for (const codeData of codedataList) {
+      if (!codeData?.id) {
+        result.success = false;
+        throw Error("!!! codeData doesn't exist");
       }
-      let newHospitalData = new THospital();
-      newHospitalData.dutyAddr = e.dutyAddr;
-      newHospitalData.dutyDiv = e.dutyDiv;
-      newHospitalData.dutyDivNam = e.dutyDivNam;
-      newHospitalData.dutyEmcls = e.dutyEmcls;
-      newHospitalData.dutyEmclsName = e.dutyEmclsName;
-      newHospitalData.dutyEryn = Number(e.dutyEryn) > 0 ? true : false;
-      newHospitalData.dutyName = e.dutyName;
-      newHospitalData.dutyTel1 = e.dutyTel1;
-      newHospitalData.dutyTel3 = e.dutyTel3;
-      newHospitalData.dutyTime1c = e.dutyTime1c + "";
-      newHospitalData.dutyTime1s = e.dutyTime1s + "";
-      newHospitalData.dutyTime2c = e.dutyTime2c + "";
-      newHospitalData.dutyTime2s = e.dutyTime2s + "";
-      newHospitalData.dutyTime3c = e.dutyTime3c + "";
-      newHospitalData.dutyTime3s = e.dutyTime3s + "";
-      newHospitalData.dutyTime4c = e.dutyTime4c + "";
-      newHospitalData.dutyTime4s = e.dutyTime4s + "";
-      newHospitalData.dutyTime5c = e.dutyTime5c + "";
-      newHospitalData.dutyTime5s = e.dutyTime5s + "";
-      newHospitalData.dutyTime6c = e.dutyTime6c + "";
-      newHospitalData.dutyTime6s = e.dutyTime6s + "";
-      newHospitalData.hpid = e.hpid;
-      newHospitalData.wgs84Lon = e.wgs84Lon;
-      newHospitalData.wgs84Lat = e.wgs84Lat;
-      console.log(`codeData.id: `, codeData.id);
-      newHospitalData.medicalSpecCode = codeData;
-      await hospitalRepository.save(newHospitalData);
+
+      const serviceKey = "K60fwXwUfeie+c5RPS5jl2C3VL9WHVCpNlwzN87iA10pdJUZ3zxgCBWc+Rsaw9PAbY3plvzstYZbAwBdhTNXaQ==";
+      const url = "http://apis.data.go.kr/B552657/HsptlAsembySearchService/getHsptlMdcncListInfoInqire";
+      console.log(`## codeData?.code: ${codeData?.code}`);
+      const params = {
+        serviceKey: serviceKey,
+        Q0: "광주광역시",
+        //Q1: "광산구",
+        //QZ: "B",
+        QD: codeData?.code ?? "", // 진료과목. CODE_MST의'D000' 참조(D001~D029)
+        //QT: "1",
+        //QN: "삼성병원",
+        //ORD: "NAME",
+        pageNo: "1",
+        numOfRows: "100000",
+      };
+
+      const response = await axios.get(url, {
+        params,
+      });
+
+      let data = response?.data?.response?.body?.items?.item ?? [];
+      if (!Array.isArray(data) && data?.hpid) {
+        let e: HospitalData = data;
+        console.log(`## single`);
+        const existHospital = await hospitalRepository.findOne({ where: { hpid: e.hpid } });
+
+        let s_newHospitalData = new THospital();
+        if (!existHospital?.id) {
+          s_newHospitalData.dutyAddr = e.dutyAddr;
+          s_newHospitalData.dutyDiv = e.dutyDiv;
+          s_newHospitalData.dutyDivNam = e.dutyDivNam;
+          s_newHospitalData.dutyEmcls = e.dutyEmcls;
+          s_newHospitalData.dutyEmclsName = e.dutyEmclsName;
+          s_newHospitalData.dutyEryn = Number(e.dutyEryn) > 0 ? true : false;
+          s_newHospitalData.dutyName = e.dutyName;
+          s_newHospitalData.dutyTel1 = e.dutyTel1;
+          s_newHospitalData.dutyTel3 = e.dutyTel3;
+          s_newHospitalData.dutyTime1c = e.dutyTime1c + "";
+          s_newHospitalData.dutyTime1s = e.dutyTime1s + "";
+          s_newHospitalData.dutyTime2c = e.dutyTime2c + "";
+          s_newHospitalData.dutyTime2s = e.dutyTime2s + "";
+          s_newHospitalData.dutyTime3c = e.dutyTime3c + "";
+          s_newHospitalData.dutyTime3s = e.dutyTime3s + "";
+          s_newHospitalData.dutyTime4c = e.dutyTime4c + "";
+          s_newHospitalData.dutyTime4s = e.dutyTime4s + "";
+          s_newHospitalData.dutyTime5c = e.dutyTime5c + "";
+          s_newHospitalData.dutyTime5s = e.dutyTime5s + "";
+          s_newHospitalData.dutyTime6c = e.dutyTime6c + "";
+          s_newHospitalData.dutyTime6s = e.dutyTime6s + "";
+          s_newHospitalData.hpid = e.hpid;
+          s_newHospitalData.wgs84Lon = e.wgs84Lon;
+          s_newHospitalData.wgs84Lat = e.wgs84Lat;
+          s_newHospitalData = await hospitalRepository.save(s_newHospitalData);
+        }
+        try {
+          let hospital_codes = new THospitalMedicalcodes();
+          if (existHospital?.id) hospital_codes.hospital = existHospital;
+          else hospital_codes.hospital = s_newHospitalData;
+          hospital_codes.medicalSpecCode = codeData;
+          hospital_codes = await hospitalMedicalcodeRepository.save(hospital_codes);
+        } catch (error) {}
+      }
+      if (Array.isArray(data)) {
+        for (const _e of data) {
+          if (!_e?.hpid) continue;
+          console.log(`## list`);
+          let e: HospitalData = _e;
+          const existHospital = await hospitalRepository.findOne({ where: { hpid: e.hpid } });
+          let newHospitalData = new THospital();
+          if (!existHospital?.id) {
+            newHospitalData.dutyAddr = e.dutyAddr;
+            newHospitalData.dutyDiv = e.dutyDiv;
+            newHospitalData.dutyDivNam = e.dutyDivNam;
+            newHospitalData.dutyEmcls = e.dutyEmcls;
+            newHospitalData.dutyEmclsName = e.dutyEmclsName;
+            newHospitalData.dutyEryn = Number(e.dutyEryn) > 0 ? true : false;
+            newHospitalData.dutyName = e.dutyName;
+            newHospitalData.dutyTel1 = e.dutyTel1;
+            newHospitalData.dutyTel3 = e.dutyTel3;
+            newHospitalData.dutyTime1c = e.dutyTime1c + "";
+            newHospitalData.dutyTime1s = e.dutyTime1s + "";
+            newHospitalData.dutyTime2c = e.dutyTime2c + "";
+            newHospitalData.dutyTime2s = e.dutyTime2s + "";
+            newHospitalData.dutyTime3c = e.dutyTime3c + "";
+            newHospitalData.dutyTime3s = e.dutyTime3s + "";
+            newHospitalData.dutyTime4c = e.dutyTime4c + "";
+            newHospitalData.dutyTime4s = e.dutyTime4s + "";
+            newHospitalData.dutyTime5c = e.dutyTime5c + "";
+            newHospitalData.dutyTime5s = e.dutyTime5s + "";
+            newHospitalData.dutyTime6c = e.dutyTime6c + "";
+            newHospitalData.dutyTime6s = e.dutyTime6s + "";
+            newHospitalData.hpid = e.hpid;
+            newHospitalData.wgs84Lon = e.wgs84Lon;
+            newHospitalData.wgs84Lat = e.wgs84Lat;
+            await hospitalRepository.save(newHospitalData);
+          }
+          try {
+            let hospital_codes = new THospitalMedicalcodes();
+            if (existHospital?.id) hospital_codes.hospital = existHospital;
+            else hospital_codes.hospital = newHospitalData;
+            hospital_codes.medicalSpecCode = codeData;
+            hospital_codes = await hospitalMedicalcodeRepository.save(hospital_codes);
+          } catch (error) {}
+        }
+      }
+
+      await sleep(2000);
     }
 
     await AppDataSource.query(`

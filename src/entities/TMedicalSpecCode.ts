@@ -5,7 +5,7 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
 } from "typeorm";
-import { THospital } from "./THospital";
+import { THospitalMedicalcodes } from "./THospitalMedicalcodes";
 
 @Index("t_medical_spec_code_pkey", ["id"], { unique: true })
 @Entity("t_medical_spec_code", { schema: "public" })
@@ -23,6 +23,9 @@ export class TMedicalSpecCode {
   })
   name: string;
 
-  @OneToMany(() => THospital, (tHospital) => tHospital.medicalSpecCode)
-  tHospitals: THospital[];
+  @OneToMany(
+    () => THospitalMedicalcodes,
+    (tHospitalMedicalcodes) => tHospitalMedicalcodes.medicalSpecCode
+  )
+  tHospitalMedicalcodes: THospitalMedicalcodes[];
 }

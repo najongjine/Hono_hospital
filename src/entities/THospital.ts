@@ -2,14 +2,14 @@ import {
   Column,
   Entity,
   Index,
-  JoinColumn,
-  ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from "typeorm";
-import { TMedicalSpecCode } from "./TMedicalSpecCode";
+import { THospitalMedicalcodes } from "./THospitalMedicalcodes";
 
 @Index("t_hospital_hpid_key", ["hpid"], { unique: true })
 @Index("t_hospital_pkey", ["id"], { unique: true })
+@Index("idx_hospital_location", ["location"], {})
 @Entity("t_hospital", { schema: "public" })
 export class THospital {
   @PrimaryGeneratedColumn({ type: "integer", name: "id" })
@@ -21,7 +21,7 @@ export class THospital {
   @Column("character varying", {
     name: "duty_name",
     nullable: true,
-    length: 10,
+    length: 50,
     default: () => "''",
   })
   dutyName: string | null;
@@ -53,7 +53,7 @@ export class THospital {
   @Column("character varying", {
     name: "duty_emcls",
     nullable: true,
-    length: 10,
+    length: 20,
     default: () => "''",
   })
   dutyEmcls: string | null;
@@ -92,7 +92,7 @@ export class THospital {
   @Column("character varying", {
     name: "duty_time1s",
     nullable: true,
-    length: 5,
+    length: 10,
     default: () => "''",
   })
   dutyTime1s: string | null;
@@ -100,7 +100,7 @@ export class THospital {
   @Column("character varying", {
     name: "duty_time1c",
     nullable: true,
-    length: 5,
+    length: 10,
     default: () => "''",
   })
   dutyTime1c: string | null;
@@ -108,7 +108,7 @@ export class THospital {
   @Column("character varying", {
     name: "duty_time2s",
     nullable: true,
-    length: 5,
+    length: 10,
     default: () => "''",
   })
   dutyTime2s: string | null;
@@ -116,7 +116,7 @@ export class THospital {
   @Column("character varying", {
     name: "duty_time2c",
     nullable: true,
-    length: 5,
+    length: 10,
     default: () => "''",
   })
   dutyTime2c: string | null;
@@ -124,7 +124,7 @@ export class THospital {
   @Column("character varying", {
     name: "duty_time3s",
     nullable: true,
-    length: 5,
+    length: 10,
     default: () => "''",
   })
   dutyTime3s: string | null;
@@ -132,7 +132,7 @@ export class THospital {
   @Column("character varying", {
     name: "duty_time3c",
     nullable: true,
-    length: 5,
+    length: 10,
     default: () => "''",
   })
   dutyTime3c: string | null;
@@ -140,7 +140,7 @@ export class THospital {
   @Column("character varying", {
     name: "duty_time4s",
     nullable: true,
-    length: 5,
+    length: 10,
     default: () => "''",
   })
   dutyTime4s: string | null;
@@ -148,7 +148,7 @@ export class THospital {
   @Column("character varying", {
     name: "duty_time4c",
     nullable: true,
-    length: 5,
+    length: 10,
     default: () => "''",
   })
   dutyTime4c: string | null;
@@ -156,7 +156,7 @@ export class THospital {
   @Column("character varying", {
     name: "duty_time5s",
     nullable: true,
-    length: 5,
+    length: 10,
     default: () => "''",
   })
   dutyTime5s: string | null;
@@ -164,7 +164,7 @@ export class THospital {
   @Column("character varying", {
     name: "duty_time5c",
     nullable: true,
-    length: 5,
+    length: 10,
     default: () => "''",
   })
   dutyTime5c: string | null;
@@ -172,7 +172,7 @@ export class THospital {
   @Column("character varying", {
     name: "duty_time6s",
     nullable: true,
-    length: 5,
+    length: 10,
     default: () => "''",
   })
   dutyTime6s: string | null;
@@ -180,7 +180,7 @@ export class THospital {
   @Column("character varying", {
     name: "duty_time6c",
     nullable: true,
-    length: 5,
+    length: 10,
     default: () => "''",
   })
   dutyTime6c: string | null;
@@ -204,11 +204,9 @@ export class THospital {
   })
   wgs84Lat: number | null;
 
-  @ManyToOne(
-    () => TMedicalSpecCode,
-    (tMedicalSpecCode) => tMedicalSpecCode.tHospitals,
-    { onDelete: "CASCADE", onUpdate: "CASCADE" }
+  @OneToMany(
+    () => THospitalMedicalcodes,
+    (tHospitalMedicalcodes) => tHospitalMedicalcodes.hospital
   )
-  @JoinColumn([{ name: "medical_spec_code_id", referencedColumnName: "id" }])
-  medicalSpecCode: TMedicalSpecCode;
+  tHospitalMedicalcodes: THospitalMedicalcodes[];
 }
