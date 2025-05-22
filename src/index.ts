@@ -8,7 +8,7 @@ dotenv.config({ path: envFile });
 
 /** import routes */
 import test1 from "./routes/test1/test1.js";
-import dataapi from "./routes/dataapi/dataapi.js";
+import fav_hospital from "./routes/fav_hospital/fav_hospital.js";
 import kakaomap_api from "./routes/kakao_api/kakaomap_api.js";
 /** import routes END */
 
@@ -30,7 +30,8 @@ app.get("/", (c) => {
 
 /* API END Point 등록 */
 app.route("/test1", test1);
-app.route("/dataapi", dataapi);
+app.route("/fav_hospital", fav_hospital);
+app.route("/kakaomap_api", kakaomap_api);
 
 app.onError((err, c) => {
   return c.json({

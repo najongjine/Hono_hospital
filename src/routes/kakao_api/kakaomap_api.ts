@@ -1,11 +1,6 @@
 import { Hono } from "hono";
 import { AppDataSource } from "../../data-source1";
-import { TStores } from "../../entities/TStores";
 import axios from "axios";
-import { TMedicalSpecCode } from "../../entities/TMedicalSpecCode";
-import { THospital } from "../../entities/THospital";
-import { THospitalMedicalcodes } from "../../entities/THospitalMedicalcodes";
-import { Code } from "typeorm";
 import * as KakaoTypes from "./kakaomap_api_type";
 
 const router = new Hono();
