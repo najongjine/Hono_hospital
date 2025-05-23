@@ -6,7 +6,7 @@ import { FavHospital } from "../../entities/FavHospital";
 
 const router = new Hono();
 
-router.get("/get_hospital_by_hid", async (c) => {
+router.get("/get_hospital_by_kakao_placeid", async (c) => {
   let result: { success: boolean; data: any; code: string; message: string } = {
     success: true,
     data: null,
