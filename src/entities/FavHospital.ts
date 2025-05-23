@@ -1,17 +1,13 @@
 import { Column, Entity, Index, PrimaryGeneratedColumn } from "typeorm";
 
-@Index("fav_hospital_pkey", ["id"], { unique: true })
+@Index("fav_hospital_pkey", ["idP"], { unique: true })
 @Entity("fav_hospital", { schema: "public" })
 export class FavHospital {
-  @PrimaryGeneratedColumn({ type: "integer", name: "id" })
-  id: number;
+  @PrimaryGeneratedColumn({ type: "integer", name: "id_p" })
+  idP: number;
 
-  @Column("character varying", {
-    name: "kakao_p_id",
-    length: 500,
-    default: () => "''",
-  })
-  kakaoPId: string;
+  @Column("character varying", { name: "id", length: 500, default: () => "''" })
+  id: string;
 
   @Column("character varying", {
     name: "address_name",
