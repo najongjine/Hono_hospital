@@ -2,6 +2,7 @@ import { serve } from "@hono/node-server";
 import { Hono } from "hono";
 import * as dotenv from "dotenv";
 import { AppDataSource } from "./data-source1";
+import { cors } from "hono/cors";
 
 const envFile = process.env.NODE_ENV === "production" ? ".env.production" : ".env.development";
 dotenv.config({ path: envFile });
@@ -13,6 +14,9 @@ import kakaomap_api from "./routes/kakao_api/kakaomap_api.js";
 /** import routes END */
 
 const app = new Hono();
+
+// ✅ CORS 미들웨어 추가: 모든 origin 허용
+app.use("*", cors());
 
 /** DB 연결 */
 AppDataSource.initialize()
@@ -30,8 +34,8 @@ app.get("/", (c) => {
 
 /* API END Point 등록 */
 app.route("/test1", test1);
-app.route("/fav_hospital", fav_hospital);
-app.route("/kakaomap_api", kakaomap_api);
+app.route("/api/fav_hospital", fav_hospital);
+app.route("/api/kakaomap_api", kakaomap_api);
 
 app.onError((err, c) => {
   return c.json({
