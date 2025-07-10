@@ -6,6 +6,30 @@ import { FavHospital } from "../../entities/FavHospital";
 
 const router = new Hono();
 
+router.get("/get_fav_hospital_list", async (c) => {
+  let result: { success: boolean; data: any; code: string; message: string } = {
+    success: true,
+    data: null,
+    code: "",
+    message: ``,
+  };
+  try {
+    const params = c.req.query();
+    const favHospitalRepository = AppDataSource.getRepository(FavHospital);
+    let favHospital = await favHospitalRepository.find({
+      order: { createdDt: "DESC" },
+      take: 1000,
+    });
+    result.data = favHospital;
+    return c.json(result);
+  } catch (error: any) {
+    console.log(error);
+    result.success = false;
+    result.code = `get_hospital_by_id`;
+    result.message = `!!! error on get_hospital_by_id. ${error?.message ?? ""}`;
+    return c.json(result);
+  }
+});
 router.get("/get_hospital_by_kakao_placeid", async (c) => {
   let result: { success: boolean; data: any; code: string; message: string } = {
     success: true,
@@ -16,7 +40,9 @@ router.get("/get_hospital_by_kakao_placeid", async (c) => {
   try {
     const params = c.req.query();
     const favHospitalRepository = AppDataSource.getRepository(FavHospital);
-    let favHospital = await favHospitalRepository.findOne({ where: { id: String(params?.id) ?? "" } });
+    let favHospital = await favHospitalRepository.findOne({
+      where: { id: String(params?.id) ?? "" },
+    });
     result.data = favHospital;
     return c.json(result);
   } catch (error: any) {
@@ -44,7 +70,10 @@ router.post("/upsert_hospital", async (c) => {
       result.message = `!!! invalid hospital id`;
       return c.json(result);
     }
-    let kako_placedata = (await favHospitalRepository.findOne({ where: { id: String(body?.id) ?? "" } })) ?? new FavHospital();
+    let kako_placedata =
+      (await favHospitalRepository.findOne({
+        where: { id: String(body?.id) ?? "" },
+      })) ?? new FavHospital();
     kako_placedata.addressName = body?.address_name ?? "";
     kako_placedata.categoryGroupCode = body?.category_group_code ?? "";
     kako_placedata.categoryGroupName = body?.category_group_name ?? "";
@@ -75,7 +104,10 @@ router.post("/delete_hospital", async (c) => {
   try {
     const favHospitalRepository = AppDataSource.getRepository(FavHospital);
     const body: any = await c.req.json(); // JSON 형태로 body 파싱
-    let kako_placedata = (await favHospitalRepository.findOne({ where: { id: String(body?.id) ?? "" } })) ?? new FavHospital();
+    let kako_placedata =
+      (await favHospitalRepository.findOne({
+        where: { id: String(body?.id) ?? "" },
+      })) ?? new FavHospital();
     if (!kako_placedata?.idP) {
       result.success = false;
       result.code = `delete_hospital`;

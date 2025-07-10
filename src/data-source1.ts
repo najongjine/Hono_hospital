@@ -4,7 +4,10 @@ import * as dotenv from "dotenv";
 import * as path from "path";
 import { fileURLToPath } from "url";
 
-const envFile = process.env.NODE_ENV === "production" ? ".env.production" : ".env.development";
+const envFile =
+  process.env.NODE_ENV === "production"
+    ? ".env.production"
+    : ".env.development";
 dotenv.config({ path: envFile });
 
 // @ts-ignore
@@ -19,7 +22,7 @@ export const AppDataSource = new DataSource({
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
   entities: [path.join(__dirname, "/entities/**/*.{ts,js}")],
-  synchronize: false,
+  synchronize: true,
 });
 
 /**
