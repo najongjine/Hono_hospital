@@ -25,8 +25,10 @@ router.get("/get_fav_hospital_list", async (c) => {
   } catch (error: any) {
     console.log(error);
     result.success = false;
-    result.code = `get_hospital_by_id`;
-    result.message = `!!! error on get_hospital_by_id. ${error?.message ?? ""}`;
+    result.code = `get_fav_hospital_list`;
+    result.message = `!!! error on get_fav_hospital_list. ${
+      error?.message ?? ""
+    }`;
     return c.json(result);
   }
 });
