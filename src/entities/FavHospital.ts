@@ -10,6 +10,14 @@ export class FavHospital {
   id: string;
 
   @Column("character varying", {
+    name: "place_name",
+    nullable: true,
+    length: 255,
+    default: () => "''",
+  })
+  placeName: string | null;
+
+  @Column("character varying", {
     name: "address_name",
     nullable: true,
     length: 255,

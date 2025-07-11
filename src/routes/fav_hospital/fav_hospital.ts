@@ -15,11 +15,26 @@ router.get("/get_fav_hospital_list", async (c) => {
   };
   try {
     const params = c.req.query();
-    const favHospitalRepository = AppDataSource.getRepository(FavHospital);
-    let favHospital = await favHospitalRepository.find({
-      order: { createdDt: "DESC" },
-      take: 1000,
-    });
+    let favHospital = await AppDataSource.query(`
+    SELECT
+    id_p
+    ,id
+    ,place_name
+    ,address_name
+    ,road_address_name
+    ,phone
+    ,category_name
+    ,category_group_code
+    ,category_group_name
+    ,x
+    ,y
+    ,place_url
+    ,created_dt
+    ,updated_dt
+    FROM fav_hospital
+    ORDER BY created_dt desc
+    LIMIT 1000
+    `);
     result.data = favHospital;
     return c.json(result);
   } catch (error: any) {
@@ -76,6 +91,7 @@ router.post("/upsert_hospital", async (c) => {
       (await favHospitalRepository.findOne({
         where: { id: String(body?.id) ?? "" },
       })) ?? new FavHospital();
+    kako_placedata.placeName = body?.place_name ?? "";
     kako_placedata.addressName = body?.address_name ?? "";
     kako_placedata.categoryGroupCode = body?.category_group_code ?? "";
     kako_placedata.categoryGroupName = body?.category_group_name ?? "";
