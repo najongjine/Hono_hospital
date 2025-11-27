@@ -4,12 +4,14 @@ import * as dotenv from "dotenv";
 import { AppDataSource } from "./data-source1";
 import { cors } from "hono/cors";
 
-const envFile = process.env.NODE_ENV === "production" ? ".env.production" : ".env.development";
+const envFile =
+  process.env.NODE_ENV === "production"
+    ? ".env.production"
+    : ".env.development";
 dotenv.config({ path: envFile });
 
 /** import routes */
 import test1 from "./routes/test1/test1.js";
-import fav_hospital from "./routes/fav_hospital/fav_hospital.js";
 import kakaomap_api from "./routes/kakao_api/kakaomap_api.js";
 /** import routes END */
 
@@ -34,7 +36,6 @@ app.get("/", (c) => {
 
 /* API END Point 등록 */
 app.route("/test1", test1);
-app.route("/api/fav_hospital", fav_hospital);
 app.route("/api/kakaomap_api", kakaomap_api);
 
 app.onError((err, c) => {

@@ -1,1 +1,5 @@
-typeorm-model-generator -h localhost -d hospital_project -u postgres -x aaaa -e postgres -o ./src
+typeorm-model-generator -h aws-1-ap-northeast-2.pooler.supabase.com -d hospital_project -u postgres -x aaaa -e postgres -o ./src
+
+npx typeorm-model-generator -h db.nasjdxdokpzgmglmadyy.supabase.co -p 5432 -d postgres -u postgres -x bKMeqy6jbdmHulSz -e postgres -o ./src/entities --ssl true
+
+npm i -g typeorm-model-generator
